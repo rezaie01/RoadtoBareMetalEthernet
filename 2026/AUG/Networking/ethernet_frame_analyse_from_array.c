@@ -1,5 +1,5 @@
 /*
- * von Links nach Rechts, die Struktur von Ethernetframe ():
+ * von Links nach Rechts, die Struktur von Ethernetframe (min 64 Bytes für Collisions zu vermeiden bie Ethernet I, max 1518 Bytes):
  * 6 Byte: MAC-Empfänger
  * 6 Byte: MAC-Sender
  * 4 Byte IEEE 802.1Q Tag 
