@@ -1,100 +1,14 @@
 /*
-
-# Challenge 1 – Ethernet Frame Parser
-
-## Ziel
-
-Einen Ethernet-Frame als `unsigned char`-Array in C untersuchen und seine Bestandteile direkt aus den Bytes auslesen – ohne fertige Ethernet-Library.
-
-## Ethernet-Frame
-
-```text
-6 Byte   Ziel-MAC
-6 Byte   Quell-MAC
-2 Byte   EtherType
-Payload
-FCS
-```
-
-Bei VLAN kommt vor dem eigentlichen EtherType ein 4-Byte-Tag hinzu:
-
-```text
-0x8100 + VLAN-Informationen
-```
-
-Beispiele für EtherType:
-
-```text
-0x0800 → IPv4
-0x86DD → IPv6
-0x0806 → ARP
-0x0842 → Wake-on-LAN
-```
-
-## Umsetzung
-
-Ich habe Frames aus Wireshark als C-Array verwendet:
-
-```c
-unsigned char eth_fr[] = { ... };
-```
-
-Die wichtigsten Positionen:
-
-```text
-Bytes 0–5   → Ziel-MAC
-Bytes 6–11  → Quell-MAC
-Bytes 12–13 → EtherType
-```
-
-Den EtherType habe ich selbst aus zwei Bytes zusammengesetzt:
-
-```c
-eth_type = eth_fr[12] * 0x0100 + eth_fr[13];
-```
-
-Dabei habe ich Big Endian und die Byte-Reihenfolge besser verstanden. Bei VLAN verschiebt sich die Position des EtherType.
-
-Getestet habe ich ARP-, IPv4- und IPv6-Frames mit unterschiedlichen Längen.
-
-## Padding
-
-Ursprünglich dachte ich, dass `0x00` automatisch Padding bedeutet. Das stimmt nicht allgemein. In meinen Wireshark-Testdaten waren die Padding-Bytes zwar `0x00`, daraus kann ich aber keine allgemeine Ethernet-Regel ableiten.
-
-## FCS / CRC
-
-Ein vollständiger Ethernet-Frame enthält am Ende einen 4-Byte-FCS. Die verwendeten Wireshark-Arrays enthalten diese Bytes nicht. Deshalb muss ich zwischen dem vollständigen Frame auf dem Medium und den aufgezeichneten Capture-Daten unterscheiden.
-
-CRC/FCS implementiere ich später als eigene Challenge.
-
-## Erkenntnisse
-
-Die Challenge hat mehrere Bereiche verbunden:
-
-```text
-C:          Arrays, unsigned char, sizeof, Indexierung
-Computer:   Bytes, Hexadezimalzahlen, Big Endian
-Netzwerk:   MAC, EtherType, VLAN, Payload, Padding, FCS
-```
-
-Ich verstehe Ethernet-Frames jetzt nicht mehr nur als fertige Struktur, sondern als Folge von Bytes im Speicher.
-
-## Offene Punkte
-
-* FCS/CRC selbst implementieren
-* Frame-Längen und Gültigkeit prüfen
-* Parser später mit echten Hardware-Daten verwenden
-
-## Ergebnis
-
-**Challenge 1 abgeschlossen.**
-
-```text
-C → Bytes → Ethernet-Frame → Hardware → Bare-Metal-Ethernet
-```
-
-
-*/
+ * von Links nach Rechts, die Struktur von Ethernetframe ():
+ * 6 Byte: MAC-Empfänger
+ * 6 Byte: MAC-Sender
+ * 4 Byte IEEE 802.1Q Tag 
+ *	* 2 Byte feste Wert: 0x8100 => IEEE 802.1Q tagged. => 2 mehr Bytes
+ *	*
+ * 2 Bytes EtherType (IPv4 x0800)
+ * 46 - 1500 Bytes Payload
+ * TODO:	Payload-Länge = Max-Länge - die Ethernet-Header-Länge (Data Link Layer) - die Ethernet-Footer-Länge
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -186,7 +100,7 @@ int main()
         // Korrektur: zu oben: Nulls sind die Paddings immer nicht, die Spezifikation sagt nicht was die Padding sein soll. Hier nur in Wireshark waren die Paddings als Null bezeichnet.
 
 
-        // 59 weil, 0 index, und 64 - 4 - 1 = 59. -4 für 4 FCS (frame checksum) Bytes CRC (Cyclic Redundency Check) 
+        // 59 weil, 0 index, und 64 - 4 - 1 = 59. -4 für 4 FCS (frame checksum) Bytes CRC-Bytes 
         for (; eth_fr[59 - pad] == 0x00; pad++) ;
         
 
