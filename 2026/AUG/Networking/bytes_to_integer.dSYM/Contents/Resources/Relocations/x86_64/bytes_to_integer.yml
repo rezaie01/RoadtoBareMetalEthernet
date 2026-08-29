@@ -1,0 +1,5 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     '/Users/habi/Projekte/RoadtoBareMetalEthernet/2026/AUG/Networking/bytes_to_integer'
+relocations:     []
+...
