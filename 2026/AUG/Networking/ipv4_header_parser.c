@@ -19,7 +19,7 @@ int main() {
     printf("Version: %d\nn", version);
     printf("Length: %d => %d * 32 = %d Bits\n", i_h_l, i_h_l, i_h_l * 32);
 
-
+    // Wird im Sep weiter gemacht.
     
     return EXIT_SUCCESS;
 
