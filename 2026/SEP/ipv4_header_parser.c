@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "types.h"
 
-typedef unsigned char u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
 
 u16 join_to_u16(u8 b1, u8 b0) {
     return (0x0000 | b0) | ((0x0000 | b1) << 8);
@@ -68,5 +66,6 @@ int main() {
 
     printf("Source Address: %d.%d.%d.%d\n", bytes[12], bytes[13], bytes[14], bytes[15])  ;
     printf("Destination Address: %d.%d.%d.%d\n", bytes[16], bytes[17], bytes[18], bytes[19])  ;
+    
     return EXIT_SUCCESS;
 }
