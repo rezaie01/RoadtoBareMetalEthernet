@@ -34,7 +34,7 @@ int main() {
 
     u8 flags = (bytes[6] & 0b11100000) >> 5;
 
-    if (flags <= 1) { // Fragmentiert: weil die dritte Bit (erste von links) aufs 1 gesetzt ist.
+    if (flags != 2) { // Fragmentiert: weil die dritte Bit (erste von links) aufs 1 gesetzt ist.
         printf("Flags: %03d\n", flags);
         printf(flags == 0  ? "\t Flag is set to 0 => Fragmentation happend, and this packet is the last fragment." : "\tFlag is set to 1 => Fragmentation happend.");
         puts("");
