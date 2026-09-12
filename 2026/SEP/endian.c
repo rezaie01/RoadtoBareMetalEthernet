@@ -31,11 +31,13 @@ u32 u32_to_BE(u32 n)
     return n;
 }
 
+// whereas b1 is the more significant byte
 u16 bytes_to_hostu16(u8 b1, u8 b0)
 {
     return (0x0000 | b0) | ((0x0000 | b1) << 8);
 }
 
+// whereas b3 is the most significant byte
 u32 bytes_to_hostu32(u8 b3, u8 b2, u8 b1, u8 b0) {
     return bytes_to_hostu16(b1, b0) | (u32)bytes_to_hostu16(b3, b2) << 16;
 }
