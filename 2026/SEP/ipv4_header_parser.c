@@ -2,15 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "types.h"
-
-
-u16 join_to_u16(u8 b1, u8 b0) {
-    return (0x0000 | b0) | ((0x0000 | b1) << 8);
-}
-
-u32 join_to_u32(u8 b3, u8 b2, u8 b1, u8 b0) {
-    return join_to_u16(b1, b0) | (u32)join_to_u16(b3, b2) << 16;
-}
+#include "endian.h"
 
 int parse_ipv4_header(u8 bytes[]) {
     u8 version = bytes[0] >> 4;
@@ -23,11 +15,11 @@ int parse_ipv4_header(u8 bytes[]) {
 
     // Das zweite Byte is ToS, was nicht analysiert wird.
     
-    u16 total_len = join_to_u16(bytes[2], bytes[3]);
+    u16 total_len = bytes_to_hostu16(bytes[2], bytes[3]);
     printf("Total Length: %d Bytes\n", total_len);
 
 
-    u16 id = join_to_u16(bytes[4], bytes[5]);
+    u16 id = bytes_to_hostu16(bytes[4], bytes[5]);
     printf("Identification: 0x%x\n", id);
 
     u8 flags = (bytes[6] & 0b11100000) >> 5;
@@ -40,10 +32,10 @@ int parse_ipv4_header(u8 bytes[]) {
         printf("Flags: %d => Fragmentation is not allowed.\n", flags);
     }
 
-    u16 frag_offset = join_to_u16(bytes[6], bytes[7]) & 0x1fff;
+    u16 frag_offset = bytes_to_hostu16(bytes[6], bytes[7]) & 0x1fff;
     printf("Fragmentation offset: %d \n", frag_offset);
 
-    if (frag_offset + (flags<<13) != join_to_u16(bytes[6], bytes[7])) return EXIT_FAILURE;
+    if (frag_offset + (flags<<13) != bytes_to_hostu16(bytes[6], bytes[7])) return EXIT_FAILURE;
 
     u8 ttl = bytes[8];
     printf("Time-to-Live: %d (number of Hops [routers])\n", ttl);
