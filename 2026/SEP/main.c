@@ -1,18 +1,26 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "hex_dump.h"
 #include "types.h"
+#include "endian.h"
+#include "ethernet_frame.h"
 
-int main() {
+int main()
+{
     u8 bytes[] = {0x45, 0x0, 0x0, 0x3c, 0x1a, 0x53, 0x0, 0x0, 0xff, 0x11, 0x98, 0x2b, 0xc0, 0xa8, 0x48, 0x8a, 0xff, 0xff, 0xff, 0xff, 0x1b, 0xb2, 0x1b, 0xb3, 0x0, 0x28, 0xa3, 0xbe, 0x23, 0x32, 0x30, 0x30, 0x32, 0x38, 0x31, 0x66, 0x38, 0x20, 0x69, 0x70, 0x20, 0x72, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x20, 0x3a, 0x20, 0x31, 0x34, 0x31, 0x34, 0x31, 0x34, 0x31, 0x34};
 
-    printf("\n");
-    // hex_dump(bytes, sizeof(bytes)/sizeof(bytes[0]));
-    hex_dump(bytes, 48);
+    tEthFrame *eth_frame = tEthFrame_ctor();
+   
+    tEthFrameHeader *fr_header = eth_frame->create_header(bytes, bytes+6, bytes_to_hostu16(bytes[12], bytes[13]), 0);
+    eth_frame->set_header(eth_frame, fr_header);
+    
+    tEthFrameHeader *fh = eth_frame->frame->header;
+    u8* rmac = fh->reciever_mac;
+    u8* smac = fh->sender_mac;
+
+    printf("Ziel MAC-Adresse: %x:%x:%x:%x:%x:%x\n", rmac[0], rmac[1], rmac[2], rmac[3], rmac[4], rmac[5]);
+    printf("Quelle MAC-Adresse: %x:%x:%x:%x:%x:%x\n", smac[0], smac[1], smac[2], smac[3], smac[4], smac[5]);
 
     return EXIT_SUCCESS;
-
 }
