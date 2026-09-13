@@ -12,7 +12,8 @@ int main()
 
     tEthFrame *eth_frame = tEthFrame_ctor();
    
-    tEthFrameHeader *fr_header = eth_frame->create_header(bytes, bytes+6, bytes_to_hostu16(bytes[12], bytes[13]), 0);
+    printf("%d\n", sizeof(bytes));
+    tEthFrameHeader *fr_header = eth_frame->parse_header(eth_frame, bytes, sizeof(bytes));
     eth_frame->set_header(eth_frame, fr_header);
     
     tEthFrameHeader *fh = eth_frame->frame->header;
