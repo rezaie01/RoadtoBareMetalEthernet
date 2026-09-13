@@ -1,5 +1,5 @@
 #include "ethernet_frame.h"
-
+#include "shared.h"
 #include "endian.h"
 
 
@@ -192,7 +192,7 @@ tPDU *create_frame(tEthFrameHeader *header, u8 *payload, u32 payload_len, tEthFr
     }
 
     eth_frame->payload_len = payload_len;
-    eth_frame->total_len = header->len + payload_len + footer ? 4 : 0;
+    eth_frame->total_len = header->len + payload_len + (footer ? 4 : 0);
     eth_frame->footer = footer;
 
     eth_frame->data = (u8 *)malloc(sizeof(u8) * payload_len);
