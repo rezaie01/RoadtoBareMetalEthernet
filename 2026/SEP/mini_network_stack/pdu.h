@@ -1,7 +1,7 @@
 
 #ifndef __MNS_PDU_H__ // stands for mini network stack
 #define __MNS_PDU_H__ 
-#include "../types.h"
+#include "types.h"
 
 struct tPDU;
 
