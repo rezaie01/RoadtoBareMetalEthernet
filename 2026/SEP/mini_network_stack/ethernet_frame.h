@@ -6,6 +6,8 @@
 #include <stdio.h> // TODO: output only if debugging
 
 #include "pdu.h"
+#include "shared.h"
+
 struct tEthFrameHeader;
 
 typedef struct tEthFrameHeader tEthFrameHeader;
@@ -20,23 +22,6 @@ struct tEthFrameHeader
 
     char *(*get_header_str)(tEthFrameHeader *self);
 };
-
-char *ether_type_to_str(u16 eth_type)
-{
-    switch (eth_type)
-    {
-    case 0x0800:
-        return "IPv4";
-    case 0x86dd:
-        return "IPv6";
-    case 0x0806:
-        return "ARP (Address Resolution Protocol)";
-    case 0x0842:
-        return "WoL (Wake on LAN)";
-    default: // TODO: Later. more EtherTypes.
-        return "Unsupported EtherType";
-    }
-}
 
 char *get_header_str(tEthFrameHeader *self)
 {
@@ -96,7 +81,7 @@ struct tEthFrame
     tEthFrame *(*parse)(tEthFrame *self, u8 *bytes, u16 bytes_len);
 };
 
-tEthFrame *tEthFrame_ctor();
+tEthFrame *tARPPacket_ctor();
 
 // TODO: set_header(u8* bytes, bytes_len) implement
 void set_header(tEthFrame *self, tEthFrameHeader *header)
@@ -130,7 +115,7 @@ tEthFrame *parse(tEthFrame *self, u8 *bytes, u16 bytes_len)
 
     tEthFrameHeader *header = self->parse_header(self, bytes, bytes_len);
 
-    tEthFrame *frame_obj = tEthFrame_ctor();
+    tEthFrame *frame_obj = tARPPacket_ctor();
     frame_obj->frame = self->create_frame(header, bytes + header->len, bytes_len - header->len, nullptr);
 
     return frame_obj;
@@ -167,32 +152,6 @@ tEthFrameHeader *parse_header(tEthFrame *self, u8 *bytes, u16 bytes_len)
         }
     }
     exit(1);
-}
-
-char *bytes_repr(u8 *bytes, u32 size, char* line_prefix)
-{
-    size_t prefix_len = strlen(line_prefix);
-    size_t str_size = (size * 3) + ((size/16 + 1) * prefix_len) + 1; // every bytes will take a length a 3 (2 hex digits, a trailing space or a new line character) plus the null terminator
-
-    char *str = malloc(str_size);
-    for (u32 i = 0; i <= size/16; i++)
-    {
-        strcat(str, line_prefix);
-        for (u8 j = 0; j < 16 && (i * 16) + j < size; j++) {
-
-            char src[4];
-            if (j == 15 || (i * 16) + j == size - 1) {
-                snprintf(src, 3, "%02x", bytes[i * 16 + j]);
-            } else {
-                snprintf(src, 4, "%02x ", bytes[i * 16 + j]);
-            }
-            strcat(str, src);
-        }
-        strcat(str, "\n");
-
-    }
-
-    return str;
 }
 
 char *get_frame_repr_str(tPDU *self)
@@ -255,7 +214,7 @@ tEthFrameHeader *create_header(u8 *target_mac, u8 *src_mac, u16 ether_type, u32 
     return fr_header;
 }
 
-tEthFrame *tEthFrame_ctor()
+tEthFrame *tARPPacket_ctor()
 {
     tEthFrame *eth_frame = (tEthFrame *)malloc(sizeof(tEthFrame));
     eth_frame->set_header = set_header;
