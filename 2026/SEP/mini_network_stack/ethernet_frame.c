@@ -1,6 +1,11 @@
-#include "ethernet_frame.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h> // TODO: output only if debugging
+
 #include "shared.h"
 #include "endian.h"
+
+#include "ethernet_frame.h"
 
 
 // Etherent Frame header related methonds

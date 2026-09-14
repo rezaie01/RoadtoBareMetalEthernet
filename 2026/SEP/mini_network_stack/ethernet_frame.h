@@ -1,12 +1,8 @@
 #ifndef __MNS_ETH_FRM_H__
 #define __MNS_ETH_FRM_H__
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h> // TODO: output only if debugging
-
+#include "types.h"
 #include "pdu.h"
-#include "shared.h"
 
 struct tEthFrameHeader;
 
