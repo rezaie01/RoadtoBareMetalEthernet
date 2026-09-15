@@ -14,21 +14,27 @@ tIPARPHeader *create_arp_header(u16 hardware_type, u16 prtcl_type, u8 hw_size, u
 tIPARPHeader *parse_arp_header(tARPPacket *self, u8 *bytes, u16 bytes_len);
 char *get_arp_header_str(tIPARPHeader *self);
 
+// === ARP PACKET METHODS ===
+char *get_arp_pkt_repr_str(tPDU *self);
+tPDU *create_arp_packet(tIPARPHeader *header);
+tARPPacket *parse_arp(tARPPacket *self, u8 *bytes, u16 bytes_len);
+
 tARPPacket *tARPPacket_ctor()
 {
     tARPPacket *arp_pckt = (tARPPacket *)malloc(sizeof(tARPPacket));
-    arp_pckt->set_arp_header = set_arp_header;
-    arp_pckt->get_arp_header = get_arp_header;
+    arp_pckt->set_header = set_arp_header;
+    arp_pckt->get_header = get_arp_header;
 
-    arp_pckt->create_arp_header = create_arp_header;
-    arp_pckt->parse_arp_header = parse_arp_header;
+    arp_pckt->create_header = create_arp_header;
+    arp_pckt->parse_header = parse_arp_header;
 
-    // arp_pckt->create_packet = create_frame;
-    // arp_pckt->parse = parse;
+    arp_pckt->create_packet = create_arp_packet;
+    arp_pckt->parse = parse_arp;
 
     return arp_pckt;
 };
 
+// TODO: Verbessere das Formatieren, um jede Zeile indentation bekommt.
 char *get_arp_header_str(tIPARPHeader *self)
 {
     char title[] = "ARP Header:";
@@ -173,7 +179,7 @@ tIPARPHeader *parse_arp_header(tARPPacket *self, u8 *bytes, u16 bytes_len)
         u8 *trgt_mac = bytes + 18;
         u8 *trgt_addr = bytes + 24;
 
-        return self->create_arp_header(
+        return self->create_header(
             hw_type, prtcl_type,
             hw_size, prtcl_size,
             operation_code,
@@ -181,4 +187,46 @@ tIPARPHeader *parse_arp_header(tARPPacket *self, u8 *bytes, u16 bytes_len)
             trgt_mac, trgt_addr);
     }
     exit(1);
+}
+
+// === ARP Packet ===
+// Obwohl ARP Packet hat keine Payload oder Footer. Nur um die Gründstruktur jedes TCP/IP Level zu folgen.
+
+tARPPacket *parse_arp(tARPPacket *self, u8 *bytes, u16 bytes_len)
+{
+    tIPARPHeader *header = self->parse_header(self, bytes, bytes_len);
+
+    tARPPacket *pkt_obj = tARPPacket_ctor();
+    pkt_obj->packet = self->create_packet(header);
+
+    return pkt_obj;
+}
+
+tPDU *create_arp_packet(tIPARPHeader *header)
+{
+    tPDU *arp_pkt = (tPDU *)malloc(sizeof(tPDU));
+
+    arp_pkt->get_repr_str = get_arp_pkt_repr_str;
+
+    arp_pkt->header = header;
+
+    arp_pkt->payload_len = 0;
+    arp_pkt->total_len = header->len;
+    arp_pkt->footer = nullptr;
+
+    arp_pkt->data = nullptr;
+
+    return arp_pkt;
+}
+
+char *get_arp_pkt_repr_str(tPDU *self)
+{
+    tIPARPHeader *header = (tIPARPHeader *)self->header;
+
+    char *final_str_format = "Address Resolution Protocol Packet:\n\t%s\n";
+    u16 final_size = snprintf(NULL, 0, final_str_format, header->get_arp_header_str(header));
+    char *final_str = (char *)malloc((final_size + 1) * sizeof(char));
+    snprintf(final_str, final_size * 1, final_str_format, header->get_arp_header_str(header));
+
+    return final_str;
 }
