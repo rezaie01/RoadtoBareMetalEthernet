@@ -30,10 +30,9 @@ int main()
 
     tARPPacket *arp_packet_obj = tARPPacket_ctor();
 
-    printf("\n%d\n", *(l3_bytes));
-    tIPARPHeader* arp_header =  arp_packet_obj->parse_arp_header(arp_packet_obj, l3_bytes, parsed_frame->frame->payload_len);
+    tARPPacket* parsed_arp_obj =  arp_packet_obj->parse(arp_packet_obj, l3_bytes, parsed_frame->frame->payload_len);
 
-    printf("Network Layer: (ARP Protocol)");
-    printf(arp_header->get_arp_header_str(arp_header));
+    printf(parsed_arp_obj->packet->get_repr_str(parsed_arp_obj->packet));
+
     return EXIT_SUCCESS;
 }
