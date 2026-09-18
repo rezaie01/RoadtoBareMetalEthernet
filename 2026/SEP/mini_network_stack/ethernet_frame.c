@@ -9,20 +9,20 @@
 
 
 // Etherent Frame header related methonds
-const tEthFrameHeader *get_header(const tEthFrame *self);
-void set_header(tEthFrame *self, tEthFrameHeader *header);
+const tEthFrameHeader *get_header(const tEthProtocol *self);
+void set_header(tEthProtocol *self, tEthFrameHeader *header);
 char *get_header_str(tEthFrameHeader *self);
 tEthFrameHeader *create_header(u8 *target_mac, u8 *src_mac, u16 ether_type, u32 vlan_tag);
-tEthFrameHeader *parse_header(tEthFrame *self, u8 *bytes, u16 bytes_len);
+tEthFrameHeader *parse_header(tEthProtocol *self, u8 *bytes, u16 bytes_len);
 
 // Etherent frame related methonds
-tEthFrame *parse(tEthFrame *self, u8 *bytes, u16 bytes_len);
+tEthProtocol *parse(tEthProtocol *self, u8 *bytes, u16 bytes_len);
 char *get_frame_repr_str(tPDU *self);
 tPDU *create_frame(tEthFrameHeader *header, u8 *payload, u32 payload_len, tEthFrameFooter *footer);
 
-tEthFrame *tEthFrame_ctor()
+tEthProtocol *tEthFrame_ctor()
 {
-    tEthFrame *eth_frame = (tEthFrame *)malloc(sizeof(tEthFrame));
+    tEthProtocol *eth_frame = (tEthProtocol *)malloc(sizeof(tEthProtocol));
     eth_frame->set_header = set_header;
     eth_frame->get_header = get_header;
 
@@ -36,7 +36,7 @@ tEthFrame *tEthFrame_ctor()
 };
 
 // TODO: set_header(u8* bytes, bytes_len) implement
-void set_header(tEthFrame *self, tEthFrameHeader *header)
+void set_header(tEthProtocol *self, tEthFrameHeader *header)
 {
     if (!self->frame)
     {
@@ -46,14 +46,14 @@ void set_header(tEthFrame *self, tEthFrameHeader *header)
     self->frame->header = header;
 }
 
-const tEthFrameHeader *get_header(const tEthFrame *self)
+const tEthFrameHeader *get_header(const tEthProtocol *self)
 {
     const tEthFrameHeader *header = (tEthFrameHeader *)self->frame->header;
     return header;
 }
 
 // array of header bytes or the whole frame bytes.
-tEthFrameHeader *parse_header(tEthFrame *self, u8 *bytes, u16 bytes_len)
+tEthFrameHeader *parse_header(tEthProtocol *self, u8 *bytes, u16 bytes_len)
 {
     // make sure size is 1B
     if (sizeof(bytes[1]) != 1)
@@ -141,14 +141,15 @@ char *get_header_str(tEthFrameHeader *self)
 // ========================================  Ethernet Frame Related Methods ==================================
 // ========================================  ============================== ==================================
 
-tEthFrame *parse(tEthFrame *self, u8 *bytes, u16 bytes_len)
+tEthProtocol *parse(tEthProtocol *self, u8 *bytes, u16 bytes_len)
 {
 
     // TODO: asumming that the bytes is a whole frame, right now.
     // because I don't have access full ethernet packets/frames to test and implement the FCS feature.
 
     // BUT at least checking if it fullfills the least length requirements.
-    // TODO: Watchout for Jumbo or nonstandard frames.
+    // TODO: Watchout for Jumbo or nonstandard frames. 
+    // TODO: Better to let the maximum length be larger. Just to be able to appraise a variety of lengths. Random thoughts :)
     if (bytes_len < 60 || bytes_len > 1500)
     {
         exit(1);
@@ -156,7 +157,7 @@ tEthFrame *parse(tEthFrame *self, u8 *bytes, u16 bytes_len)
 
     tEthFrameHeader *header = self->parse_header(self, bytes, bytes_len);
 
-    tEthFrame *frame_obj = tEthFrame_ctor();
+    tEthProtocol *frame_obj = tEthFrame_ctor();
     frame_obj->frame = self->create_frame(header, bytes + header->len, bytes_len - header->len, nullptr);
 
     return frame_obj;

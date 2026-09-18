@@ -10,22 +10,22 @@ typedef struct tEthFrameHeader tEthFrameHeader;
 
 typedef struct tEthFrameFooter tEthFrameFooter;
 
-struct tEthFrame;
-typedef struct tEthFrame tEthFrame;
-struct tEthFrame
+struct tEthProtocol;
+typedef struct tEthProtocol tEthProtocol;
+struct tEthProtocol
 {
     tPDU *frame;
-    int (*decode)(tEthFrame *self, u8 *bytes);
-    u8 *(*encode)(const tEthFrame *self);
+    int (*decode)(tEthProtocol *self, u8 *bytes);
+    u8 *(*encode)(const tEthProtocol *self);
 
-    void (*set_header)(tEthFrame *self, tEthFrameHeader *header);
-    const tEthFrameHeader *(*get_header)(const tEthFrame *self);
+    void (*set_header)(tEthProtocol *self, tEthFrameHeader *header);
+    const tEthFrameHeader *(*get_header)(const tEthProtocol *self);
 
     tEthFrameHeader *(*create_header)(u8 *target_mac, u8 *src_mac, u16 ether_type, u32 vlan_tag);
     tPDU *(*create_frame)(tEthFrameHeader *header, u8 *payload, u32 payload_len, tEthFrameFooter *footer);
 
-    tEthFrameHeader *(*parse_header)(tEthFrame *self, u8 *bytes, u16 bytes_len);
-    tEthFrame *(*parse)(tEthFrame *self, u8 *bytes, u16 bytes_len);
+    tEthFrameHeader *(*parse_header)(tEthProtocol *self, u8 *bytes, u16 bytes_len);
+    tEthProtocol *(*parse)(tEthProtocol *self, u8 *bytes, u16 bytes_len);
 };
 
 struct tEthFrameHeader
@@ -44,6 +44,6 @@ struct tEthFrameFooter
     u8 *checksum;
 };
 
-tEthFrame *tEthFrame_ctor();
+tEthProtocol *tEthFrame_ctor();
 
 #endif
