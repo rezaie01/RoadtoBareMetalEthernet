@@ -6,22 +6,22 @@
 #include "../endian.h"
 #include "shared.h"
 
-#include "ippacket_arp.h"
+#include "ippckt_arp.h"
 
-void set_arp_header(tARPPacket *self, tIPARPHeader *header);
-const tIPARPHeader *get_arp_header(const tARPPacket *self);
+void set_arp_header(tARPProtocol *self, tIPARPHeader *header);
+const tIPARPHeader *get_arp_header(const tARPProtocol *self);
 tIPARPHeader *create_arp_header(u16 hardware_type, u16 prtcl_type, u8 hw_size, u8 prtcl_size, u16 operation, u8 *source_mac, u8 *source_addr, u8 *target_mac, u8 *target_addr);
-tIPARPHeader *parse_arp_header(tARPPacket *self, u8 *bytes, u16 bytes_len);
+tIPARPHeader *parse_arp_header(tARPProtocol *self, u8 *bytes, u16 bytes_len);
 char *get_arp_header_str(tIPARPHeader *self);
 
 // === ARP PACKET METHODS ===
 char *get_arp_pkt_repr_str(tPDU *self);
 tPDU *create_arp_packet(tIPARPHeader *header);
-tARPPacket *parse_arp(tARPPacket *self, u8 *bytes, u16 bytes_len);
+tARPProtocol *parse_arp(tARPProtocol *self, u8 *bytes, u16 bytes_len);
 
-tARPPacket *tARPPacket_ctor()
+tARPProtocol *tARPProtocol_ctor()
 {
-    tARPPacket *arp_pckt = (tARPPacket *)malloc(sizeof(tARPPacket));
+    tARPProtocol *arp_pckt = (tARPProtocol *)malloc(sizeof(tARPProtocol));
     arp_pckt->set_header = set_arp_header;
     arp_pckt->get_header = get_arp_header;
 
@@ -94,7 +94,7 @@ char *get_arp_header_str(tIPARPHeader *self)
 }
 
 // TODO: set_header(u8* bytes, bytes_len) implement
-void set_arp_header(tARPPacket *self, tIPARPHeader *header)
+void set_arp_header(tARPProtocol *self, tIPARPHeader *header)
 {
     if (!self->packet)
     {
@@ -104,7 +104,7 @@ void set_arp_header(tARPPacket *self, tIPARPHeader *header)
     self->packet->header = header;
 }
 
-const tIPARPHeader *get_arp_header(const tARPPacket *self)
+const tIPARPHeader *get_arp_header(const tARPProtocol *self)
 {
     const tIPARPHeader *header = (tIPARPHeader *)self->packet->header;
     return header;
@@ -120,7 +120,7 @@ tIPARPHeader *create_arp_header(
     u8 *target_mac, u8 *target_addr)
 {
     tIPARPHeader *pkt_header = (tIPARPHeader *)malloc(sizeof(tIPARPHeader));
-    pkt_header->get_arp_header_str = get_arp_header_str;
+    pkt_header->get_header_str = get_arp_header_str;
 
     pkt_header->hardware_type = hardware_type;
     pkt_header->prtcl_type = prtcl_type;
@@ -145,7 +145,7 @@ tIPARPHeader *create_arp_header(
 }
 
 // array of header bytes or the whole frame bytes.
-tIPARPHeader *parse_arp_header(tARPPacket *self, u8 *bytes, u16 bytes_len)
+tIPARPHeader *parse_arp_header(tARPProtocol *self, u8 *bytes, u16 bytes_len)
 {
     // make sure size is 1B
     if (sizeof(bytes[1]) != 1)
@@ -192,11 +192,11 @@ tIPARPHeader *parse_arp_header(tARPPacket *self, u8 *bytes, u16 bytes_len)
 // === ARP Packet ===
 // Obwohl ARP Packet hat keine Payload oder Footer. Nur um die Gründstruktur jedes TCP/IP Level zu folgen.
 
-tARPPacket *parse_arp(tARPPacket *self, u8 *bytes, u16 bytes_len)
+tARPProtocol *parse_arp(tARPProtocol *self, u8 *bytes, u16 bytes_len)
 {
     tIPARPHeader *header = self->parse_header(self, bytes, bytes_len);
 
-    tARPPacket *pkt_obj = tARPPacket_ctor();
+    tARPProtocol *pkt_obj = tARPProtocol_ctor();
     pkt_obj->packet = self->create_packet(header);
 
     return pkt_obj;
@@ -224,9 +224,9 @@ char *get_arp_pkt_repr_str(tPDU *self)
     tIPARPHeader *header = (tIPARPHeader *)self->header;
 
     char *final_str_format = "Address Resolution Protocol Packet:\n\t%s\n";
-    u16 final_size = snprintf(NULL, 0, final_str_format, header->get_arp_header_str(header));
+    u16 final_size = snprintf(NULL, 0, final_str_format, header->get_header_str(header));
     char *final_str = (char *)malloc((final_size + 1) * sizeof(char));
-    snprintf(final_str, final_size * 1, final_str_format, header->get_arp_header_str(header));
+    snprintf(final_str, final_size * 1, final_str_format, header->get_header_str(header));
 
     return final_str;
 }

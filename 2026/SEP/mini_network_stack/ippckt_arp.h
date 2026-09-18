@@ -1,5 +1,5 @@
-#ifndef __MNS_IPPACKET_ARP_H__
-#define __MNS_IPPACKET_ARP_H__
+#ifndef __MNS_IPPCKT_ARP_H__
+#define __MNS_IPPCKT_ARP_H__
 
 #include "types.h"
 #include "pdu.h"
@@ -25,20 +25,20 @@ struct tIPARPHeader
 
     u8 len;
 
-    char *(*get_arp_header_str)(tIPARPHeader *self);
+    char *(*get_header_str)(tIPARPHeader *self);
 };
 
-struct tARPPacket;
+struct tARPProtocol;
 
-typedef struct tARPPacket tARPPacket;
-struct tARPPacket
+typedef struct tARPProtocol tARPProtocol;
+struct tARPProtocol
 {
     tPDU *packet;
-    int (*decode)(tARPPacket *self, u8 *bytes, u16 bytes_len);
-    u8 *(*encode)(const tARPPacket *self);
+    int (*decode)(tARPProtocol *self, u8 *bytes, u16 bytes_len);
+    u8 *(*encode)(const tARPProtocol *self);
 
-    void (*set_header)(tARPPacket *self, tIPARPHeader *header);
-    const tIPARPHeader *(*get_header)(const tARPPacket *self);
+    void (*set_header)(tARPProtocol *self, tIPARPHeader *header);
+    const tIPARPHeader *(*get_header)(const tARPProtocol *self);
 
     tIPARPHeader *(*create_header)(
         u16 hardware_type, u16 prtcl_type,
@@ -49,10 +49,10 @@ struct tARPPacket
 
         u8 *target_mac, u8 *target_addr);
 
-    tIPARPHeader *(*parse_header)(tARPPacket *self, u8 *bytes, u16 bytes_len);
+    tIPARPHeader *(*parse_header)(tARPProtocol *self, u8 *bytes, u16 bytes_len);
 
     tPDU *(*create_packet)(tIPARPHeader *header);
-    tARPPacket *(*parse)(tARPPacket *self, u8 *bytes, u16 bytes_len);
+    tARPProtocol *(*parse)(tARPProtocol *self, u8 *bytes, u16 bytes_len);
 };
 
 typedef enum OpCode
@@ -61,6 +61,6 @@ typedef enum OpCode
     REPLY = 2
 } OpCode;
 
-tARPPacket *tARPPacket_ctor();
+tARPProtocol *tARPProtocol_ctor();
 
 #endif
