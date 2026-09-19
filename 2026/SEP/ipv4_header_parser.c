@@ -4,7 +4,7 @@
 #include "types.h"
 #include "endian.h"
 
-int parse_ipv4_header(u8 bytes[]) {
+int parse_ipv4header(u8 bytes[]) {
     u8 version = bytes[0] >> 4;
     u8 i_h_l = bytes[0] & 0b00001111;
 

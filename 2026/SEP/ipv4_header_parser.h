@@ -4,5 +4,5 @@
 
 #include "types.h"
 
-int parse_ipv4_header(u8 bytes[]);
+int parse_ipv4header(u8 bytes[]);
 #endif
