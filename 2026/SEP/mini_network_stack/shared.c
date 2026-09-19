@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "shared.h"
 
@@ -91,4 +92,18 @@ char *bytes_to_ipv4_address_str(u8 *addr, char *prefix)
         snprintf(addr_str, size + 1, addr_format, prefix, addr[0], addr[1], addr[2], addr[3]);
         return addr_str;
     }
+}
+
+char *format_str(char *frmt, ...)
+{
+    va_list args;
+    va_start(args, frmt);
+
+    size_t size = vsnprintf(NULL, 0, frmt, args);
+    char *out_str = malloc(sizeof(char) * (size + 1));
+
+    va_start(args, frmt);
+    vsnprintf(out_str, size + 1, frmt, args);
+
+    return out_str;
 }

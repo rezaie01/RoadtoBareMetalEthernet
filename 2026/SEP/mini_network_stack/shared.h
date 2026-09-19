@@ -8,4 +8,6 @@ char *ether_type_to_str(u16 eth_type);
 
 char *bytes_to_mac_str(u8 *mac, char *prefix);
 char *bytes_to_ipv4_address_str(u8 *addr, char *prefix);
+
+char *format_str(char* frmt, ...);
 #endif
