@@ -94,6 +94,7 @@ char *bytes_to_ipv4_address_str(u8 *addr, char *prefix)
     }
 }
 
+// TODO: Refactor all the files to use this function
 char *format_str(char *frmt, ...)
 {
     va_list args;
