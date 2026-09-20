@@ -52,7 +52,7 @@ struct tARPProtocol
     tIPARPHeader *(*parse_header)(tARPProtocol *self, u8 *bytes, u16 bytes_len);
 
     tPDU *(*create_packet)(tIPARPHeader *header);
-    tARPProtocol *(*parse)(tARPProtocol *self, u8 *bytes, u16 bytes_len);
+    tARPProtocol *(*parse)(tARPProtocol *self, u8 *bytes, u16 bytes_len); // TODO: rename to parse_packet, and change the return type AND implement encode, and ctor
 };
 
 typedef enum OpCode
