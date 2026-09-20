@@ -14,8 +14,11 @@ struct tUDPProtocol
 {
     tPDU *datagram;
 
-    tUDPHeader *(*create_header)(u16 src_port, u16 trgt_port, u16 len, u16 checksum);
-    tUDPHeader *(*parse_udp_header)(tUDPProtocol *self, u8 *bytes, u16 bytes_len);
+    tUDPHeader *(*create_header)(u16 src_port, u16 trgt_port, u16 total_length, u16 checksum);
+    tUDPHeader *(*parse_header)(tUDPProtocol *self, u8 *bytes, u16 bytes_len);
+
+    tPDU *(*create_datagram)(tUDPHeader *header, u8 *payload, u16 payload_len);
+    tPDU *(*parse_datagram)(tUDPProtocol *self, u8 *bytes, u16 bytes_len);
 };
 
 struct tUDPHeader
@@ -23,13 +26,14 @@ struct tUDPHeader
     u16 src_port;
     u16 trgt_port;
 
-    u16 len;
+    u16 total_length;
     u16 checksum;
 
+    u16 len;
 
     char *(*get_header_str)(tUDPHeader *self);
 };
 
-tPDU *tUDPProtocol_ctor();
+tUDPProtocol *tUDPProtocol_ctor();
 
 #endif
