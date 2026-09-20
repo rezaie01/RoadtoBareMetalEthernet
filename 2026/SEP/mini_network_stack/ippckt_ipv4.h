@@ -51,6 +51,16 @@ struct tIPv4Protocol
         tIPv4HeaderOptions *options);
 
     tIPv4Header *(*parse_header)(tIPv4Protocol *self, u8 *bytes, u16 bytes_len);
+
+    tPDU *(*create_packet)(
+        tIPv4Header *header,
+        u8 *payload,
+        u16 payload_len);
+
+    tPDU *(*parse_packet)(
+        tIPv4Protocol *self,
+        u8 *bytes,
+        u16 bytes_len);
 };
 
 struct tIPv4Header

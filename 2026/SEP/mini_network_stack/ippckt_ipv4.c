@@ -17,6 +17,19 @@ tIPv4Header *create_ipv4_header(
     tIPv4HeaderOptions *options);
 
 tIPv4Header *parse_ipv4_header(tIPv4Protocol *self, u8 *bytes, u16 bytes_len);
+
+tPDU *create_ipv4_packet(
+    tIPv4Header *header,
+    u8 *payload,
+    u16 payload_len);
+
+tPDU *parse_ipv4_packet(
+    tIPv4Protocol *self,
+    u8 *bytes,
+    u16 bytes_len);
+
+char *get_ipv4_repr_str(tPDU *self);
+
 //
 //
 //
@@ -30,6 +43,9 @@ tIPv4Protocol *tIPv4_ctor()
 
     ipv4_prtcl->create_header = create_ipv4_header;
     ipv4_prtcl->parse_header = parse_ipv4_header;
+
+    ipv4_prtcl->create_packet = create_ipv4_packet;
+    ipv4_prtcl->parse_packet = parse_ipv4_packet;
 
     return ipv4_prtcl;
 }
@@ -59,7 +75,7 @@ tIPv4Header *create_ipv4_header(
     // TODO: arbeite an TOS später
 
     // stelle sicher, dass nur die zwei erste bits Kein Null sein drüfen. 252 = 11111100
-    if (flags ^ 252 < 252)
+    if ((flags ^ 252) < 252)
     {
         fprintf(stderr, "Invalid flag: %02x\n", flags);
         exit(1);
@@ -137,13 +153,13 @@ char *get_ipv4_header_str(tIPv4Header *self)
     prtcl_namestr = format_str("%s (%d)", prtcl_namestr, self->prtcl);
     char *checksum_str = format_str("0x%04x (%s)", self->checksum, "Unverified");
 
-    char *src_ip_str = bytes_to_ipv4_address_str(self->src_ip, "Source IP address: ");
-    char *trgt_ip_str = bytes_to_ipv4_address_str(self->trgt_ip, "Target IP address: ");
+    char *src_ip_str = bytes_to_ipv4_address_str(self->src_ip, "");
+    char *trgt_ip_str = bytes_to_ipv4_address_str(self->trgt_ip, "");
 
-    char *options_str = format_str(self->options && self->options->len? "Header options present." : "No header options.");
+    char *options_str = format_str(self->options && self->options->len ? "Header options present." : "No header options.");
 
-    return format_str("\
-        Packet Header:\
+    return format_str(
+        "Packet Header:\
         \n\tVersion: 4 (IPv4)\n\tIHL (Internet Header Length): %s\
         \n\tTOS: 0x%02x\n\tTotal length: %d Bytes\
         \n\tIdentification: %s\n\tflags: %s\n\tFragment offset: %d\
@@ -151,13 +167,13 @@ char *get_ipv4_header_str(tIPv4Header *self)
         \n\tSource IP: %s\n\tTarget IP: %s\
         \n\tOptions: %s\n",
 
-                      IHL_str,
-                      self->TOS, self->total_len,
-                      id_str, flags_str, self->frag_offset,
-                      self->TTL, prtcl_namestr, checksum_str,
-                      src_ip_str, trgt_ip_str,
+        IHL_str,
+        self->TOS, self->total_len,
+        id_str, flags_str, self->frag_offset,
+        self->TTL, prtcl_namestr, checksum_str,
+        src_ip_str, trgt_ip_str,
 
-                      options_str
+        options_str
 
     );
 }
@@ -185,7 +201,7 @@ tIPv4Header *parse_ipv4_header(tIPv4Protocol *self, u8 *bytes, u16 bytes_len)
     bindex += 2;
     u16 id = bytes_to_hostu16(bytes[bindex], bytes[bindex + 1]);
 
-    bindex+=2;
+    bindex += 2;
     u8 flags = (bytes[bindex] & 0xE0) >> 5;
 
     u16 frag_offset = bytes_to_hostu16(bytes[bindex], bytes[bindex + 1]);
@@ -214,6 +230,62 @@ tIPv4Header *parse_ipv4_header(tIPv4Protocol *self, u8 *bytes, u16 bytes_len)
     // TODO: decode options
 
     return self->create_header(version, IHL, TOS, total_length, id, flags, frag_offset, TTL, prtcl, checksum, src_ip, trgt_ip, options);
+}
+
+tPDU *create_ipv4_packet(
+    tIPv4Header *header,
+    u8 *payload,
+    u16 payload_len)
+{
+    if (!payload || payload_len == 0 && header->total_len != 20)
+    {
+        fprintf(stderr, "Payload length of zero while a mismatching total length.");
+        exit(1);
+    }
+
+    tPDU *packet = malloc(sizeof(tPDU));
+
+    packet->get_repr_str = get_ipv4_repr_str;
+
+    packet->header = header;
+    packet->data = payload;
+    packet->footer = nullptr;
+    packet->payload_len = header->total_len - header->len;
+    packet->total_len = header->total_len;
+
+    return packet;
+}
+
+tPDU *parse_ipv4_packet(tIPv4Protocol *self, u8 *bytes, u16 bytes_len)
+{
+    if (bytes_len < 20)
+    {
+        fprintf(stderr, "Unacceptable length of input bytes for an IPv4 packet");
+        exit(1);
+    }
+
+    tIPv4Header *header = self->parse_header(self, bytes, bytes_len);
+
+    if (bytes_len < header->total_len)
+    {
+        fprintf(stderr, "Length of input bytes should be greater than or equal to %d", header->total_len);
+        exit(1);
+    }
+
+    tPDU *packet = create_ipv4_packet(header, bytes + header->len, bytes_len - header->len);
+
+    return packet;
+}
+
+char *get_ipv4_repr_str(tPDU *self)
+{
+    tIPv4Header *header = self->header;
+    return format_str(
+        "IPv4 Packet:\
+        \n\t%s\
+        \n\tPayload: (%d Bytes) \
+        \n%s\n",
+        header->get_header_str(header), self->payload_len, bytes_repr(self->data, self->payload_len, "\t\t"));
 }
 
 bool validate_IP_PRTCL_NUM(u8 prtcl)
