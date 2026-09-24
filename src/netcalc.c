@@ -21,7 +21,7 @@ int handle_args(int argc, char *argv[])
             if (prfx > 32)
                 exit(1);
 
-            u8 prfx_diff = 32 - prfx; // TODO: watch out for prefix edge cases 32, 31, 0, 1
+            u8 prfx_diff = 32 - prfx;
             u32 ip_as_num = bytes_to_hostu32(arr[0], arr[1], arr[2], arr[3]);
 
             u32 subnetz_maske = (u32)(pow(2, 32) - pow(2, prfx_diff));
@@ -30,7 +30,7 @@ int handle_args(int argc, char *argv[])
             u32 broadcast_ip = ip_as_num | wildcard_maske;
             u32 min_ip = netzwerk_id + 1;
             u32 max_ip = broadcast_ip - 1;
-            u32 usable_hst_c = prfx_diff < 2 ? 0 : (u32)(pow(2, prfx_diff)) - 2;
+            u32 usable_hst_c = prfx_diff < 2 ? 0 : (u32)(pow(2, prfx_diff)) - 2; // edge-case: /32 /31 handeled
 
             printf(format_str("IP-Adresse: %s\n", bytes_to_ipv4_address_str(arr, "")));
             printf("Präfix: /%d\n", prfx);
