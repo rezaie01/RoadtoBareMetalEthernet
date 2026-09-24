@@ -57,11 +57,16 @@ u8 *str_t_routingprefixv4(char *ipv4str)
 {
     i32 *ip_arr_int = malloc(5 * sizeof(i32)); // use i32, so later we can catch if the original ip had octals of 0-255
 
-    int dummy = -1; // mehr zu lesen zu erlauben, damit wir überprüfen können ob wir nur 5 integer gelesen haben
+    if (!ip_arr_int) return nullptr;
 
-    int scan_c = sscanf(ipv4str, "%d.%d.%d.%d/%d%d", ip_arr_int, ip_arr_int + 1, ip_arr_int + 2, ip_arr_int + 3, ip_arr_int + 4, &dummy);
+    int scan_c = sscanf(ipv4str, "%d.%d.%d.%d/%d", ip_arr_int, ip_arr_int + 1, ip_arr_int + 2, ip_arr_int + 3, ip_arr_int + 4);
+
+    if (scan_c != 5)
+        goto invalid_ip;
 
     u8 *ip_arr = malloc(5 * sizeof(u8));
+
+    if (!ip_arr) return nullptr;
 
     // überprüfe ob das String formatlich korrekt ist.
     if (ip_arr_int[4] < 0 || ip_arr_int[4] > 32)
@@ -77,12 +82,18 @@ u8 *str_t_routingprefixv4(char *ipv4str)
             ip_arr[i] = (u8)ip_arr_int[i];
     }
 
-    puts(bytes_to_ipv4_address_str(ip_arr, ""));
+    char *valid_str = format_str("%s/%d", bytes_to_ipv4_address_str(ip_arr, ""), ip_arr[4]); // TODO: check for malloc-results if they are null, in all of the code
 
-    return scan_c == 5 ? ip_arr : nullptr;
+    if (strlen(valid_str) != strlen(ipv4str))
+        goto invalid_ip;
+    else
+        free(valid_str);
+
+    return ip_arr;
 
 invalid_ip:
-    free(ip_arr);
+    free(ip_arr); // REMEMBER: if a ptr is null, free doesn't do anything.
+    free(valid_str);
     free(ip_arr_int);
     return nullptr;
 }
