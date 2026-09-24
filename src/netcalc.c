@@ -39,8 +39,8 @@ int handle_args(int argc, char *argv[])
             printf(format_str("Netzwerk ID: %s\n", bytes_to_ipv4_address_str(u32_to_bytes(netzwerk_id), "")));
             printf(format_str("Broadcast IP: %s\n", bytes_to_ipv4_address_str(u32_to_bytes(broadcast_ip), "")));
 
-            printf(format_str("MinIP: %s\n", prfx_diff < 2 ? "NA" : bytes_to_ipv4_address_str(u32_to_bytes(min_ip), "")));
-            printf(format_str("MaxIP: %s\n", prfx_diff < 2 ? "NA" : bytes_to_ipv4_address_str(u32_to_bytes(max_ip), "")));
+            printf(format_str("Min Usable IP: %s\n", prfx_diff < 2 ? "NA" : bytes_to_ipv4_address_str(u32_to_bytes(min_ip), "")));
+            printf(format_str("Max Usable IP: %s\n", prfx_diff < 2 ? "NA" : bytes_to_ipv4_address_str(u32_to_bytes(max_ip), "")));
             printf(format_str("Anzahl des Hosts: %u\n", usable_hst_c));
         }
     }
