@@ -29,7 +29,6 @@ int handle_args(int argc, char *argv[])
             u8 prfx_diff = 32 - prfx;
             u32 ip_as_num = bytes_to_hostu32(arr[0], arr[1], arr[2], arr[3]);
 
-            printf("%d\n", prfx_diff);
             u32 subnetz_maske = intpowof2(32) - intpowof2(prfx_diff);
             u32 wildcard_maske = intpowof2(prfx_diff) - 1;
             u32 netzwerk_id = ip_as_num & subnetz_maske;
@@ -56,12 +55,34 @@ int handle_args(int argc, char *argv[])
 
 u8 *str_t_routingprefixv4(char *ipv4str)
 {
+    i32 *ip_arr_int = malloc(5 * sizeof(i32)); // use i32, so later we can catch if the original ip had octals of 0-255
+
+    int dummy = -1; // mehr zu lesen zu erlauben, damit wir überprüfen können ob wir nur 5 integer gelesen haben
+
+    int scan_c = sscanf(ipv4str, "%d.%d.%d.%d/%d%d", ip_arr_int, ip_arr_int + 1, ip_arr_int + 2, ip_arr_int + 3, ip_arr_int + 4, &dummy);
+
     u8 *ip_arr = malloc(5 * sizeof(u8));
 
-    int dummy = -1;
     // überprüfe ob das String formatlich korrekt ist.
+    if (ip_arr_int[4] < 0 || ip_arr_int[4] > 32)
+        goto invalid_ip;
+    else
+        ip_arr[4] = (u8)ip_arr_int[4];
 
-    int i = sscanf(ipv4str, "%u.%u.%u.%u/%u%d", ip_arr, ip_arr + 1, ip_arr + 2, ip_arr + 3, ip_arr + 4, &dummy);
+    for (int i = 0; i < 4; i++)
+    {
+        if (!(0 <= ip_arr_int[i] && ip_arr_int[i] <= 255))
+            goto invalid_ip;
+        else
+            ip_arr[i] = (u8)ip_arr_int[i];
+    }
 
-    return i == 5 ? ip_arr : nullptr;
+    puts(bytes_to_ipv4_address_str(ip_arr, ""));
+
+    return scan_c == 5 ? ip_arr : nullptr;
+
+invalid_ip:
+    free(ip_arr);
+    free(ip_arr_int);
+    return nullptr;
 }
