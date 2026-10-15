@@ -112,7 +112,7 @@ int handle_args(int argc, char *argv[])
                 u32 usable_hst_c = prfx_diff < 2 ? 0 : intpowof2(prfx_diff) - 2; // edge-case: /32 /31 handeled
 
                 printf(format_str("IP-Adresse: %s\n", bytes_to_ipv4_address_str(routingprfx_arr, "")));
-                printf("Präfix: /%d\n", prfx);
+                printf("Präfix: /%d %s\n", prfx, prfx == 0? "All hosts would be local": "");
                 printf(format_str("Subnetzmaske: %s\n", bytes_to_ipv4_address_str(u32_to_bytes(subnetz_maske), "")));
                 printf(format_str("wildcardmaske: %s\n", bytes_to_ipv4_address_str(u32_to_bytes(wildcard_maske), "")));
                 printf(format_str("Netzwerk ID: %s/%d\n", bytes_to_ipv4_address_str(u32_to_bytes(netzwerk_id), ""), prfx));
