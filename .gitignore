@@ -3,3 +3,4 @@
 /dest
 .directory
 *.dSYM/
+/build
