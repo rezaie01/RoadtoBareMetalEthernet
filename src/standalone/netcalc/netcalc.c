@@ -1,11 +1,10 @@
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "endian.h"
 #include "netcalc.h"
 #include "mini_network_stack/shared.h"
-#include "endian.h"
 
 u64 intpowof2(u8 n)
 {
