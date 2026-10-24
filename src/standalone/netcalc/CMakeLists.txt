@@ -41,4 +41,24 @@ target_include_directories(TEST_TARGET_given_ipv4_show_network_profile PRIVATE
 )
 set_target_properties(netcalc PROPERTIES ${NETCALC_TARGET_PROPS})
 
+
+
+
+add_executable(TEST_TARGET_show_network_profile_edge_cases)
+target_sources(TEST_TARGET_show_network_profile_edge_cases PRIVATE
+    "test/show_network_profile_edge_cases.c"
+    netcalc.c
+    "${REPO_ROOT_SRC}/endian.c"
+    "${REPO_ROOT_SRC}/mini_network_stack/shared.c"
+)
+add_dependencies(TEST_TARGET_show_network_profile_edge_cases netcalc)
+target_include_directories(TEST_TARGET_show_network_profile_edge_cases PRIVATE 
+    ${NETCALC_INCLUDES}
+)
+set_target_properties(TEST_TARGET_show_network_profile_edge_cases PROPERTIES ${NETCALC_TARGET_PROPS})
+
+
+
+
 add_test(NAME TEST_given_ipv4_show_network_profile COMMAND TEST_TARGET_given_ipv4_show_network_profile)
+add_test(NAME TEST_show_network_profile_edge_cases COMMAND TEST_TARGET_show_network_profile_edge_cases)
