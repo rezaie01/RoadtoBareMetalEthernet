@@ -15,12 +15,10 @@ int test_subnets_correctly(u8 test_num, TNetworkPrefix org_net,
          bytes_to_ipv4_address_str(u32_to_bytes(org_net.network_id), ""),
          org_net.prefix, requested_subnets);
 
-  printf("HI THERE");
   char *tobe_subnetting_str;
   char *isnow_subnetting_str;
   if (requested_subnets == 1) {
 
-    printf("HI THERE");
     tobe_subnetting_str = get_subnetting_str(org_net, requested_subnets,
                                              possible_subnets, NULL);
   } else if ((org_net.prefix < 30) && (0 <= new_prefix && new_prefix <= 30) &&
@@ -52,7 +50,6 @@ int test_subnets_correctly(u8 test_num, TNetworkPrefix org_net,
     tobe_subnetting_str = ERRSUBNET__PREFIX_GE_30;
   }
 
-  printf("HI THERE");
   char *argv[4] = {"netcalc",
                    format_str("%s/%d",
                               bytes_to_ipv4_address_str(
