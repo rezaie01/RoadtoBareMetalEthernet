@@ -9,7 +9,7 @@ void hex_dump(const u8 *bytes, size_t size)
     size_t i = 0;
     for (size_t row = 0; row <= (size / 16) + (size % 16 > 0 ? 1 : 0); row++)
     {
-        printf("%08x", (row * 16 > size ? size : row * 16));
+        printf("%08zx", (row * 16 > size ? size : row * 16));
 
         size_t j = i;
         for (; j < (row + 1) * 16 && j < size; j++)
