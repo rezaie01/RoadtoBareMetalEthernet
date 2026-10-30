@@ -2,7 +2,7 @@
 #define __MNS_ETH_FRM_H__
 
 #include "types.h"
-#include "pdu.h"
+#include "mini_network_stack/pdu.h"
 
 struct tEthFrameHeader;
 
